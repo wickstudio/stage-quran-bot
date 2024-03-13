@@ -1,0 +1,7 @@
+python-dotenv
+discord.py
+yt-dlp
+pytube
+pickledb
+PyNaCl
+youtube_dl
