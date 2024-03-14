@@ -21,6 +21,7 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 with open('playlist.json', 'r') as f:
     playlists = json.load(f)
 
+
 async def get_voice_client(force_reconnect=False):
     guild = bot.get_guild(int(SERVER_ID))
     if guild is None:
@@ -32,7 +33,8 @@ async def get_voice_client(force_reconnect=False):
             await guild.voice_client.disconnect()
         if channel.permissions_for(guild.me).connect:
             voice_client = await channel.connect()
-            await guild.me.edit(suppress=False)
+            if isinstance(channel, discord.StageChannel):
+                await guild.me.edit(suppress=False)
             return voice_client
         else:
             print("Bot does not have permission to connect to the channel.")
@@ -41,9 +43,10 @@ async def get_voice_client(force_reconnect=False):
         print("Channel is not a voice or stage channel, or CHANNEL_ID not provided.")
         return None
 
+
 @bot.event
 async def on_ready():
-    print(f'Logged in as {bot.user.name} | discord.gg/wicks')
+    print(f'Logged in as {bot.user.name}')
     voice_client = await get_voice_client()
     if voice_client:
         await play_playlist(voice_client, playlists)
@@ -76,7 +79,7 @@ def download_youtube_audio(url):
         return audio_url
 
 
-async def play_playlist(voice_client:discord.VoiceClient, playlists):
+async def play_playlist(voice_client: discord.VoiceClient, playlists):
     while True:
         for reciter in playlists['reciters']:
             playlist_id = reciter['playList']
