@@ -7,9 +7,9 @@ import asyncio
 from pytube import Playlist
 
 
-TOKEN = ''
-SERVER_ID = ''
-CHANNEL_ID = ''
+TOKEN = '' # bot token
+GUILD_ID = '' # bot id
+CHANNEL_ID = '' # channel id ( stage / voice channel )
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -21,20 +21,19 @@ bot = commands.Bot(command_prefix='!', intents=intents)
 with open('playlist.json', 'r') as f:
     playlists = json.load(f)
 
-
 async def get_voice_client(force_reconnect=False):
-    guild = bot.get_guild(int(SERVER_ID))
+    guild = bot.get_guild(int(GUILD_ID))
     if guild is None:
         print("Guild not found.")
         return None
+
     channel = guild.get_channel(int(CHANNEL_ID))
     if channel and isinstance(channel, (discord.VoiceChannel, discord.StageChannel)):
         if force_reconnect and guild.voice_client:
             await guild.voice_client.disconnect()
         if channel.permissions_for(guild.me).connect:
             voice_client = await channel.connect()
-            if isinstance(channel, discord.StageChannel):
-                await guild.me.edit(suppress=False)
+            await guild.me.edit(suppress=False)
             return voice_client
         else:
             print("Bot does not have permission to connect to the channel.")
@@ -42,7 +41,6 @@ async def get_voice_client(force_reconnect=False):
     else:
         print("Channel is not a voice or stage channel, or CHANNEL_ID not provided.")
         return None
-
 
 @bot.event
 async def on_ready():
@@ -79,17 +77,17 @@ def download_youtube_audio(url):
         return audio_url
 
 
-async def play_playlist(voice_client: discord.VoiceClient, playlists):
+async def play_playlist(voice_client:discord.VoiceClient, playlists):
     while True:
         for reciter in playlists['reciters']:
             playlist_id = reciter['playList']
             urls = await get_playlist_urls(f'https://www.youtube.com/playlist?list={playlist_id}')
             for url in urls:
-                if not voice_client or not voice_client.is_connected():
-                    voice_client = await get_voice_client(force_reconnect=True)
-                    if not voice_client:
-                        print("Failed to reconnect.")
-                        return
+                # if not voice_client or not voice_client.is_connected():
+                voice_client = await get_voice_client(force_reconnect=True)
+                if not voice_client:
+                    print("Failed to reconnect.")
+                    return
                 try:
                     audio_url = download_youtube_audio(url)
                     ffmpeg_options = {
