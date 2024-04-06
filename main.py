@@ -7,9 +7,9 @@ import asyncio
 from pytube import Playlist
 
 
-TOKEN = '' # bot token
-GUILD_ID = '' # bot id
-CHANNEL_ID = '' # channel id ( stage / voice channel )
+TOKEN = '' # Bot Token
+GUILD_ID = '' # Server id
+CHANNEL_ID = '' # channel id ( Voice / Stage )
 
 intents = discord.Intents.default()
 intents.messages = True
@@ -83,11 +83,11 @@ async def play_playlist(voice_client:discord.VoiceClient, playlists):
             playlist_id = reciter['playList']
             urls = await get_playlist_urls(f'https://www.youtube.com/playlist?list={playlist_id}')
             for url in urls:
-                # if not voice_client or not voice_client.is_connected():
-                voice_client = await get_voice_client(force_reconnect=True)
-                if not voice_client:
-                    print("Failed to reconnect.")
-                    return
+                if not voice_client or not voice_client.is_connected():
+                  voice_client = await get_voice_client(force_reconnect=True)
+                  if not voice_client:
+                      print("Failed to reconnect.")
+                      return
                 try:
                     audio_url = download_youtube_audio(url)
                     ffmpeg_options = {
