@@ -33,7 +33,8 @@ async def get_voice_client(force_reconnect=False):
             await guild.voice_client.disconnect()
         if channel.permissions_for(guild.me).connect:
             voice_client = await channel.connect()
-            await guild.me.edit(suppress=False)
+            if isinstance(channel, discord.StageChannel):
+                await voice_client.guild.me.edit(suppress=False)
             return voice_client
         else:
             print("Bot does not have permission to connect to the channel.")
